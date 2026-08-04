@@ -1,0 +1,27 @@
+{
+  "name": "ai-assistant",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:generate": "npm run db:generate -w @ai-assistant/api",
+    "db:migrate": "npm run db:migrate -w @ai-assistant/api",
+    "db:push": "npm run db:push -w @ai-assistant/api",
+    "db:seed": "npm run db:seed -w @ai-assistant/api"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.6.2"
+}

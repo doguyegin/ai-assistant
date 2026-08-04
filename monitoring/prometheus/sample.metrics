@@ -1,0 +1,3 @@
+# HELP ai_assistant_info Static info about the service
+# TYPE ai_assistant_info gauge
+ai_assistant_info{service="api"} 1
