@@ -57,27 +57,7 @@ Anahtarlar boşken bile şu akış çalışır:
 7. Google Business → Bağlan (demo)
 8. AI Asistan sohbet (mock yanıt)
 
-## Senin yapman gerekenler (gerçek entegrasyon)
 
-1. **JWT** — `.env` ve `apps/api/.env` içinde `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` (min 32 karakter)
-2. **OpenAI** — `OPENAI_API_KEY` (yoksa mock AI)
-3. **Google Cloud OAuth** — `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`; redirect URI’ler:
-   - `http://localhost:4000/api/v1/auth/google/callback`
-   - `http://localhost:4000/api/v1/google/callback`
-4. **Meta WhatsApp Cloud API** — Phone Number ID + Access Token (panelden veya env); webhook için public URL + `WHATSAPP_VERIFY_TOKEN`
-5. Anahtarları ekledikten sonra API’yi yeniden başlatıp ilgili sayfalardan gerçek bağlantıyı dene
-
-WhatsApp / Google / OpenAI anahtarları yoksa ilgili servisler **mock** modda çalışır.
-
-## Monorepo
-
-```
-apps/web      Next.js panel
-apps/api      Express API + workers (lokal: npm run dev)
-packages/shared  Zod şemaları + RBAC
-```
-
-API Dockerfile opsiyoneldir; varsayılan geliştirme yolu `docker compose` (infra) + `npm run dev` (API/Web).
 
 ## Test
 
