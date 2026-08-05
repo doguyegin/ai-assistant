@@ -24,10 +24,15 @@ const googleClient =
       )
     : null;
 
-async function issueTokens(user: {
-  id: string;
-  email: string;
-}, tenantId: string | null, role: Role | null) {
+async function issueTokens(
+  user: {
+    id: string;
+    email: string;
+    isPlatformAdmin?: boolean;
+  },
+  tenantId: string | null,
+  role: Role | null,
+) {
   const refresh = await prisma.refreshToken.create({
     data: {
       token: cryptoRandom(),
@@ -42,6 +47,7 @@ async function issueTokens(user: {
     email: user.email,
     tenantId,
     role,
+    platformAdmin: Boolean(user.isPlatformAdmin),
   });
   const refreshToken = signRefreshToken({
     sub: user.id,
@@ -104,7 +110,9 @@ authRouter.post(
     const user = await prisma.user.findUnique({
       where: { email: body.email.toLowerCase() },
     });
-    if (!user?.passwordHash) throw new AppError("Invalid credentials", 401);
+    if (!user?.passwordHash || user.deletedAt) {
+      throw new AppError("Invalid credentials", 401);
+    }
 
     const ok = await bcrypt.compare(body.password, user.passwordHash);
     if (!ok) throw new AppError("Invalid credentials", 401);
@@ -124,9 +132,15 @@ authRouter.post(
     });
 
     res.json({
-      user: { id: user.id, email: user.email, name: user.name },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isPlatformAdmin: user.isPlatformAdmin,
+      },
       tenantId: membership?.tenantId ?? null,
       role: membership?.role ?? null,
+      platformAdmin: user.isPlatformAdmin,
       ...tokens,
     });
   }),
@@ -161,6 +175,7 @@ authRouter.post(
     });
 
     const user = await prisma.user.findUniqueOrThrow({ where: { id: payload.sub } });
+    if (user.deletedAt) throw new AppError("Account disabled", 401);
     const membership = await primaryMembership(user.id);
     const tokens = await issueTokens(
       user,
@@ -168,7 +183,10 @@ authRouter.post(
       (membership?.role as Role) ?? null,
     );
 
-    res.json(tokens);
+    res.json({
+      ...tokens,
+      platformAdmin: user.isPlatformAdmin,
+    });
   }),
 );
 

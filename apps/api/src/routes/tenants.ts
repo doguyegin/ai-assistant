@@ -60,6 +60,7 @@ tenantsRouter.post(
       email: req.user!.email,
       tenantId: tenant.id,
       role: "Owner",
+      platformAdmin: req.user!.platformAdmin,
     });
     const refreshToken = signRefreshToken({
       sub: req.user!.id,

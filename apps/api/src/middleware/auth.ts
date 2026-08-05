@@ -8,6 +8,7 @@ export type AuthUser = {
   email: string;
   tenantId: string | null;
   role: Role | null;
+  platformAdmin: boolean;
 };
 
 declare global {
@@ -30,6 +31,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction) {
       email: payload.email,
       tenantId: payload.tenantId,
       role: payload.role,
+      platformAdmin: Boolean(payload.platformAdmin),
     };
     next();
   } catch {
@@ -54,4 +56,15 @@ export function requirePermission(permission: string) {
     }
     next();
   };
+}
+
+export function requirePlatformAdmin(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) {
+  if (!req.user?.platformAdmin) {
+    return next(new AppError("Platform admin required", 403));
+  }
+  next();
 }

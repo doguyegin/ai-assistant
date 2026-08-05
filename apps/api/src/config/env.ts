@@ -36,6 +36,9 @@ const envSchema = z.object({
   WHATSAPP_ACCESS_TOKEN: z.string().optional().default(""),
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional().default(""),
   PUBLIC_QUOTE_BASE_URL: z.string().default("http://localhost:3000/q"),
+  ADMIN_EMAIL: z.string().email().default("admin@aiasistan.app"),
+  ADMIN_PASSWORD: z.string().min(8).default("Admin12345!"),
+  ADMIN_NAME: z.string().default("Platform Admin"),
 });
 
 export const env = envSchema.parse(process.env);

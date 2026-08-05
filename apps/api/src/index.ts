@@ -21,6 +21,11 @@ import { whatsappRouter } from "./routes/whatsapp.js";
 import { googleRouter } from "./routes/google.js";
 import { aiRouter } from "./routes/ai.js";
 import { dashboardRouter } from "./routes/dashboard.js";
+import { adminRouter } from "./routes/admin.js";
+import {
+  metricsMiddleware,
+  renderPrometheusMetrics,
+} from "./lib/metrics.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -46,6 +51,7 @@ app.use(
 );
 app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(express.json({ limit: "2mb" }));
+app.use(metricsMiddleware);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -66,16 +72,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/metrics", (_req, res) => {
-  res.type("text/plain").send(
-    [
-      "# HELP ai_assistant_up API process up",
-      "# TYPE ai_assistant_up gauge",
-      "ai_assistant_up 1",
-      `# HELP ai_assistant_process_start_time_seconds Start time`,
-      `# TYPE ai_assistant_process_start_time_seconds gauge`,
-      `ai_assistant_process_start_time_seconds ${Math.floor(Date.now() / 1000 - process.uptime())}`,
-    ].join("\n") + "\n",
-  );
+  res.type("text/plain").send(renderPrometheusMetrics());
 });
 
 app.use("/api/v1/auth", authLimiter, authRouter);
@@ -89,6 +86,7 @@ app.use("/api/v1/public", publicRouter);
 app.use("/api/v1/google", googleRouter);
 app.use("/api/v1/ai", aiRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
+app.use("/api/v1/admin", adminRouter);
 
 app.use(errorHandler);
 

@@ -7,6 +7,7 @@ export type AccessPayload = {
   email: string;
   tenantId: string | null;
   role: Role | null;
+  platformAdmin?: boolean;
   type: "access";
 };
 

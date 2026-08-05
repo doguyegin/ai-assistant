@@ -5,6 +5,29 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+  const adminEmail = (
+    process.env.ADMIN_EMAIL || "admin@aiasistan.app"
+  ).toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD || "Admin12345!";
+  const adminName = process.env.ADMIN_NAME || "Platform Admin";
+  const adminHash = await bcrypt.hash(adminPassword, 12);
+
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      name: adminName,
+      passwordHash: adminHash,
+      isPlatformAdmin: true,
+      deletedAt: null,
+    },
+    create: {
+      email: adminEmail,
+      name: adminName,
+      passwordHash: adminHash,
+      isPlatformAdmin: true,
+    },
+  });
+
   const email = "demo@aiasistan.app";
   const passwordHash = await bcrypt.hash("demo12345", 12);
 
@@ -140,8 +163,10 @@ async function main() {
   }
 
   console.log("Seed OK");
-  console.log(`  Login: ${email} / demo12345`);
+  console.log(`  Demo login: ${email} / demo12345`);
   console.log(`  Tenant: ${tenant.name} (${tenant.slug})`);
+  console.log(`  Admin login: ${adminEmail} / ${adminPassword}`);
+  console.log(`  Admin panel: ${process.env.WEB_URL || "http://localhost:3000"}/admin`);
 }
 
 main()

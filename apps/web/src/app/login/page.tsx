@@ -31,12 +31,17 @@ export default function LoginPage() {
         accessToken: string;
         refreshToken: string;
         tenantId: string | null;
+        platformAdmin?: boolean;
       }>("/api/v1/auth/login", {
         method: "POST",
         auth: false,
         body: JSON.stringify({ email, password }),
       });
       setTokens(data.accessToken, data.refreshToken);
+      if (data.platformAdmin) {
+        router.push("/admin");
+        return;
+      }
       router.push(data.tenantId ? "/app" : "/onboarding");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Giriş başarısız");
